@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="RU" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Shop Control</title>
+
+</head>
+<body>
+
+<div th:insert="\template\header :: navbar"></div>
+<div style="width: 80rem; margin: auto; margin-top: 5rem">
+    <form>
+        <div class="form-row">
+            <div class="form-group col-md-5">
+                <label for="managerEmail">Почта менеджера</label>
+                <input type="email" class="form-control" id="managerEmail" name="managerEmail" th:value='${settings.get("managerEmail")}'>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="recommendedDays">Количество дней до рекомендации</label>
+                <input id="recommendedDays" class="form-control" name="recommendedDays" th:value='${settings.get("recommendedDays")}'>
+            </div>
+            <div class=" form-group col-md-1">
+                <label for="btn" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                <button type="button" id="btn" class="btn btn-primary" onclick="updateSettings()">Сохранить</button>
+            </div>
+        </div>
+        <div class="alert alert-success" role="alert" id="suc" style="display:none">
+            Настройки сохранены
+        </div>
+        <div class="alert alert-danger" role="alert" id="err" style="display:none">
+            A simple danger alert—check it out!
+        </div>
+
+    </form>
+</div>
+</body>
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js"></script>
+</html>
+
+
+<script>
+async function updateSettings() {
+    var settings = $('form').serializeArray()
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    if (!re.test(settings.find(p => p.name == "managerEmail").value)) {
+         $("#err").css("display", "block")
+         $("#suc").css("display", "none")
+         $("#err").html("Введен некоректный email менеджера")
+         return;
+    }
+    var days = settings.find(p => p.name == "recommendedDays")
+    days.value = parseInt(days.value)
+    console.log(settings)
+    if(!days.value) {
+         $("#suc").css("display", "none")
+         $("#err").css("display", "block")
+         $("#err").html("Введено некоректное значение дней")
+         return;
+    }
+
+    var response = await fetch("/settings",{
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(settings)
+    })
+    if (response.ok) {
+        $("#suc").css("display", "block")
+        $("#err").css("display", "none")
+    } else {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+        console.log(response)
+        $("#err").html()
+    }
+
+}
+
+
+</script>

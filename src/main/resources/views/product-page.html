@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="RU" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Shop Control</title>
+
+</head>
+<body>
+
+<div th:insert="\template\header :: navbar"></div>
+<div style="width: 80rem; margin: auto; margin-top: 5rem">
+    <div th:insert="\template\header :: navbar"></div>
+    <div style="width: 80rem; margin: auto; margin-top: 5rem">
+        <form>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="name">Наименование товара</label>
+                    <input type="text" class="form-control" id="name" name="name" th:value="${product.name}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="recommendedDate">Рекомендуемая дата заказа</label>
+                    <input type="date" class="form-control" id="recommendedDate" name="recommendedDate"
+                           th:value="${product.recommendedDate}">
+                </div>
+                <div class="form-group col-md-3">
+                    <label for="minimalRecommendedAmount">Рекомендуемое количество товра</label>
+                    <input type="number" class="form-control" id="minimalRecommendedAmount"
+                           name="minimalRecommendedAmount" th:value="${product.minimalRecommendedAmount}">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="inputState">Еденица измерения</label>
+                    <select id="inputState" class="form-control" name="metric">
+                        <th:block th:each="metric : ${metrics}">
+                            <option th:text="${metric.name}" th:value=${metric.id}
+                                    th:selected="${product.metric.id == metric.id}"></option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+            <div class="alert alert-success " role="alert" id="suc" style="display:none">
+                Продукт успешно изменен.
+            </div>
+            <div class="alert alert-danger" role="alert" id="err" style="display:none">
+                A simple danger alert—check it out!
+            </div>
+            <button type="button" id="btn" class="btn btn-primary" onclick="updateProduct()">Изменить</button>
+        </form>
+    </div>
+
+
+    <h1>Поставщики</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">
+                <a onclick='sort({"producerSortField" : "name"})'>
+                    Наименование <img th:src="${producerIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                      width="20" height="20"
+                                      th:style="${producerSortField == 'name' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"producerSortField" : "timeForDelivery"})'>
+                    Время доставки (в днях) <img
+                        th:src="${producerIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                        height="20" th:style="${producerSortField == 'timeForDelivery' ? 'opacity:1' : 'opacity:0'}"
+                        style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"producerSortField" : "address"})'>
+                    Адрес <img th:src="${producerIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                               height="20" th:style="${producerSortField == 'address' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"producerSortField" : "distance"})'>
+                    Растояние <img th:src="${producerIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                   width="20" height="20"
+                                   th:style="${producerSortField == 'distance' ? 'opacity:1' : 'opacity:0'}"
+                                   style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"producerSortField" : "price"})'>
+                    Цена <img th:src="${producerIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                              height="20" th:style="${producerSortField == 'price' ? 'opacity:1' : 'opacity:0'}"
+                              style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="producer : ${producers}">
+
+            <tr>
+                <th scope="col" th:text="${producer.name}"></th>
+
+                <th scope="col" th:text="${producer.timeForDelivery}"></th>
+                <th scope="col"
+                    th:text="${producer.address}"></th>
+                <th scope="col" th:text="${producer.distance}"></th>
+                <th scope="col" th:text="${producer.price}"></th>
+
+            </tr>
+        </th:block>
+
+        </tbody>
+    </table>
+    <td> <form th:action="'/product/' + ${product.id} + '/producer/create'" method="get">
+        <input class="btn btn-primary" type="submit" value="Добавить поставщика"/>
+    </form>
+    <h1>Заказы</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">
+                <a onclick='sort({"orderSortField" : "id"})'>
+                    Номер заказа <img th:src="${orderIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                      width="20" height="20"
+                                      th:style="${orderSortField == 'id' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"orderSortField" : "producer.name"})'>
+                    Поставщик <img th:src="${orderIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                                   height="20"
+                                   th:style="${orderSortField == 'producer.name' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"orderSortField" : "date"})'>
+                    Дата заказа <img th:src="${orderIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                                     height="20" th:style="${orderSortField == 'date' ? 'opacity:1' : 'opacity:0'}"
+                                     style="margin-right: -100%">
+                </a>
+            </th>
+
+            <th scope="col">
+                <a onclick='sort({"orderSortField" : "countOfProduct"})'>
+                    Количество товара <img th:src="${orderIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                           width="20" height="20"
+                                           th:style="${orderSortField == 'countOfProduct' ? 'opacity:1' : 'opacity:0'}"
+                                           style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"orderSortField" : "price"})'>
+                    Цена <img th:src="${orderIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                              height="20" th:style="${orderSortField == 'price' ? 'opacity:1' : 'opacity:0'}"
+                              style="margin-right: -100%">
+                </a>
+            </th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="order : ${orders}">
+            <tr>
+                <th scope="col" th:text="${order.id}"></th>
+                <th scope="col" th:text="${order.producer.name}"></th>
+                <th scope="col" th:text="${order.date}"></th>
+                <th scope="col" th:text="${order.countOfProduct}"></th>
+                <th scope="col" th:text="${order.price}"></th>
+            </tr>
+        </th:block>
+
+        </tbody>
+    </table>
+
+    <h1>Склад</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">
+                <a onclick='sort({"batchSortField" : "id"})'>
+                    Номер партии <img th:src="${batchIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                      width="20" height="20"
+                                      th:style="${batchSortField == 'id' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"batchSortField" : "productionDate"})'>
+                    Дата игатовления
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"batchSortField" : "expirationDate"})'>
+                    Дата истечения срока годности <img
+                        th:src="${batchIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20" height="20"
+                        th:style="${batchSortField == 'expirationDate' ? 'opacity:1' : 'opacity:0'}"
+                        style="margin-right: -100%">
+                </a>
+            </th>
+
+            <th scope="col">
+                <a onclick='sort({"batchSortField" : "soldCount"})'>
+                    Продано <img th:src="${batchIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                                 height="20" th:style="${batchSortField == 'soldCount' ? 'opacity:1' : 'opacity:0'}"
+                                 style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"batchSortField" : "conditionIsSpoiled"})'>
+                    Состояние <img th:src="${batchIsDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                                   height="20"
+                                   th:style="${batchSortField == 'conditionIsSpoiled' ? 'opacity:1' : 'opacity:0'}"
+                                   style="margin-right: -100%">
+                </a>
+            </th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="batch : ${batches}">
+            <tr>
+                <th scope="col" th:text="${batch.id}"></th>
+                <th scope="col" th:text=" ${batch.productionDate}"></th>
+                <th scope="col" th:text=" ${batch.expirationDate}"></th>
+                <th scope="col" th:text="${batch.soldCount}"></th>
+                <th scope="col" th:text="${batch.conditionIsSpoiled}"></th>
+            </tr>
+        </th:block>
+
+        </tbody>
+    </table>
+
+</div>
+</body>
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js"></script>
+
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+    var productId = /*[[${product.id}]]*/
+    var sortParam = {
+        "producerSortField" : /*[[${producerSortField}]]*/,
+        "producerIsDesc" : /*[[${producerIsDesc}]]*/,
+        "orderSortField" : /*[[${orderSortField}]]*/,
+        "orderIsDesc" : /*[[${orderIsDesc}]]*/,
+        "batchSortField" : /*[[${batchSortField}]]*/,
+        "batchIsDesc" : /*[[${batchIsDesc}]]*/
+    }
+       /*]]>*/
+
+function sort(o) {
+    if (o["producerSortField"] == sortParam["producerSortField"]) {
+        sortParam["producerIsDesc"] = !sortParam["producerIsDesc"]
+    } else if (o["orderSortField"] == sortParam["orderSortField"]) {
+        sortParam["orderIsDesc"] = !sortParam["orderIsDesc"]
+    } else if (o["batchSortField"] == sortParam["batchSortField"]) {
+        sortParam["batchIsDesc"] = !sortParam["batchIsDesc"]
+    }
+
+
+    if (o["producerSortField"])
+        sortParam["producerSortField"] = o["producerSortField"]
+
+    if (o["orderSortField"])
+        sortParam["orderSortField"] = o["orderSortField"]
+
+    if (o["batchSortField"])
+        sortParam["batchSortField"] = o["batchSortField"]
+
+    window.location.replace("/product/" + productId + "?" + $.param(sortParam))
+
+}
+
+
+async function updateProduct() {
+    var product = {}
+    $('form').serializeArray().forEach((i) => {
+        product[i.name] = i.value
+    })
+
+    product["id"] = productId
+
+    product["metric"] = {id: product["metric"]}
+    product["minimalRecommendedAmount"] = parseInt(product["minimalRecommendedAmount"])
+
+    if (product["name"].length < 5) {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+         $("#err").html("Наименование товара должно содержать как минимум 5 симвовлов")
+         return;
+    }
+
+    if (isNaN(product["minimalRecommendedAmount"])) {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+         $("#err").html("Рекомендумуемое количество должно быть числом")
+         return;
+    }
+    console.log(product);
+    var response = await fetch("/api/product",{
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(product)
+    })
+    if (response.ok) {
+        $("#suc").css("display", "block")
+        $("#err").css("display", "none")
+    } else {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+    }
+
+}
+
+</script>
+</html>

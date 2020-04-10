@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="RU" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Shop Control</title>
+
+</head>
+<body>
+
+<div th:insert="\template\header :: navbar"></div>
+<div style="width: 80rem; margin: auto; margin-top: 5rem">
+    <form>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="name">Наименование товара</label>
+                <input type="text" class="form-control" id="name" name="name" readonly th:value="${product.name}">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="price">Цена</label>
+                <input type="number" class="form-control" id="price" name="price">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="timeForDelivery">Время доставки (в днях)</label>
+                <input type="number" class="form-control" id="timeForDelivery" name="timeForDelivery">
+            </div>
+
+
+            <div class="form-group col-md-2">
+                <label for="distance">Растояние</label>
+                <input type="number" class="form-control" id="distance" name="distance">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="distance">Город</label>
+                <input type="text" class="form-control" id="city" name="address.city">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="name">Улица</label>
+                <input type="text" class="form-control" id="street" name="address.street" >
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="name">Дом</label>
+                <input type="text" class="form-control" id="house" name="address.house" >
+            </div>
+
+
+
+        </div>
+        <div class="alert alert-success" role="alert" id="suc" style="display:none">
+            Поставщик успешно добавлен.
+        </div>
+        <div class="alert alert-danger" role="alert" id="err" style="display:none">
+            A simple danger alert—check it out!
+        </div>
+        <button th:onclick="'createProducer(' + ${product.id} + ')'" type="button" class="btn btn-primary">Создать</button>
+    </form>
+</div>
+</body>
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js"></script>
+</html>
+
+
+<script>
+async function createProducer(id) {
+
+
+    var producer = {}
+
+    $('form').serializeArray().forEach((i) => {
+        producer[i.name] = i.value
+    })
+    producer["address"] = {"city" : producer["address.city"],
+        "street" : producer["address.street"],
+        "house" : producer["address.house"]
+    }
+    producer["product"] = {"id" : id}
+
+
+    if (producer["name"].length < 5) {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+         $("#err").html("Наименование поставщика должно содержать как минимум 5 симвовлов")
+         return;
+    }
+
+    if (producer["price"] < 1) {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+         $("#err").html("Цена должна быть положительной")
+         return;
+    }
+
+    if (producer["timeForDelivery"] < 1) {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+         $("#err").html("Время доставки должно быть положительным")
+         return;
+    }
+
+    if (producer["distance"] < 1) {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+         $("#err").html("Растояние должно быть положительным")
+         return;
+    }
+
+
+    var response = await fetch("/product/" + id +"/producer/create",{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(producer)
+    })
+    if (response.ok) {
+        window.location.replace("/product/" + id);
+    } else {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+        console.log(response)
+        $("#err").html()
+    }
+
+}
+
+
+</script>

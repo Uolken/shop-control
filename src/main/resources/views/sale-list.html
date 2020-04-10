@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="RU" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Shop Control</title>
+
+</head>
+<body>
+
+<div th:insert="\template\header :: navbar"></div>
+<div style="width: 80rem; margin: auto; margin-top: 5rem">
+    <form action="/sale" method="post">
+        <button type="submit" class="btn btn-primary">Добавить продажу</button>
+    </form>
+    <h1>Поставщики</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "id"})'>
+                    Номер заказа <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                      width="20" height="20"
+                                      th:style="${sortField == 'id' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "date"})'>
+                    Дата заказа <img
+                        th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                        height="20" th:style="${sortField == 'date' ? 'opacity:1' : 'opacity:0'}"
+                        style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "countOfItem"})'>
+                    Количество товаров <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                            width="20"
+                                            height="20"
+                                            th:style="${sortField == 'countOfItem' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "sum"})'>
+                    Сумма <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                               width="20" height="20"
+                               th:style="${sortField == 'sum' ? 'opacity:1' : 'opacity:0'}"
+                               style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+
+            </th>
+
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="sale : ${sales}">
+            <tr>
+                <th scope="col" th:text="${sale.id}"></th>
+                <th scope="col" th:text="${sale.date}"></th>
+                <th scope="col" th:text="${sale.countOfItem}"></th>
+                <th scope="col" th:text="${sale.sum}"></th>
+                <th scope="col">
+                    <form th:action="'/sale/' + ${sale.id} + '/sale-item/add'" method="get">
+                        <input class="btn btn-primary" type="submit" value="Добавить товар"/>
+                    </form>
+                </th>
+            </tr>
+        </th:block>
+
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js"></script>
+
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+
+    var sortParam = {
+        "sortField" : /*[[${sortField}]]*/,
+        "isDesc" : /*[[${isDesc}]]*/,
+
+    }
+       /*]]>*/
+
+
+function sort(o) {
+    if (o["sortField"] == sortParam["sortField"]) {
+        sortParam["isDesc"] = !sortParam["isDesc"]
+    } else {
+        sortParam["isDesc"] = true
+    }
+    sortParam["sortField"] = o["sortField"]
+
+    window.location.replace("/sale?" + $.param(sortParam))
+
+}
+
+
+
+
+
+
+</script>
+</html>

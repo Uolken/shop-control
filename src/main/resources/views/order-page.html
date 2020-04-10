@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="RU" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Shop Control</title>
+
+</head>
+<body>
+
+<div th:insert="\template\header :: navbar"></div>
+<div style="width: 90rem; margin: auto; margin-top: 5rem">
+
+    <h1>Заказы</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "id"})'>
+                    Номер заказа <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                      width="20" height="20"
+                                      th:style="${sortField == 'id' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "product.name"})'>
+                    Название продукта <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                           width="20" height="20"
+                                           th:style="${sortField == 'product.name' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "producer.name"})'>
+                    Поставщик <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                                   height="20"
+                                   th:style="${sortField == 'producer.name' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "orderDate"})'>
+                    Дата заказа <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                                     height="20" th:style="${sortField == 'orderDate' ? 'opacity:1' : 'opacity:0'}"
+                                     style="margin-right: -100%">
+                </a>
+            </th>
+
+            <th scope="col">
+                <a onclick='sort({"sortField" : "countOfProduct"})'>
+                    Количество товара <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                           width="20" height="20"
+                                           th:style="${sortField == 'countOfProduct' ? 'opacity:1' : 'opacity:0'}"
+                                           style="margin-right: -100%">
+                </a>
+            </th>
+
+            <th scope="col">
+                <a onclick='sort({"sortField" : "price"})'>
+                    Цена <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20"
+                              height="20" th:style="${sortField == 'price' ? 'opacity:1' : 'opacity:0'}"
+                              style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+                <a onclick='sort({"sortField" : "stateIsArrived"})'>
+                    Состояние <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'"
+                                   width="20" height="20"
+                                   th:style="${sortField == 'stateIsArrived' ? 'opacity:1' : 'opacity:0'}"
+                                   style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="order : ${orders}">
+            <tr>
+                <td scope="col" th:text="${order.id}"></td>
+                <td scope="col" th:text="${order.product.name}"></td>
+                <td scope="col" th:text="${order.producer.name}"></td>
+                <td scope="col" th:text="${order.orderDate}"></td>
+                <td scope="col" th:text="${order.countOfProduct}"></td>
+                <td scope="col" th:text="${order.price}"></td>
+                <td scope="col" th:text="${order.stateIsArrived? 'доставлен': 'в пути'}"></td>
+                <td>
+
+                        <a th:href="'/order/' + ${order.id} + '/batch/create'" class="btn btn-primary"
+                           type="submit" role="button" value="Подтвердить получение" th:class="${order.stateIsArrived ? 'btn btn-primary disabled' : 'btn btn-primary '}" > Подтвердить получение </a>
+
+                </td>
+            </tr>
+        </th:block>
+
+        </tbody>
+    </table>
+</div>
+
+
+</body>
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js"></script>
+
+
+<script th:inline="javascript">
+
+/*<![CDATA[*/
+
+    var sortParam = {
+        "sortField" : /*[[${sortField}]]*/,
+        "isDesc" : /*[[${isDesc}]]*/,
+
+    }
+       /*]]>*/
+
+function sort(o) {
+    if (o["sortField"] == sortParam["sortField"]) {
+        sortParam["isDesc"] = !sortParam["isDesc"]
+    } else {
+        sortParam["isDesc"] = true
+    }
+
+    sortParam["sortField"] = o["sortField"]
+
+    window.location.replace("/order?" + $.param(sortParam))
+
+}
+
+
+
+</script>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="RU" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Shop Control</title>
+
+</head>
+<body>
+
+<div th:insert="\template\header :: navbar"></div>
+<div style="width: 80rem; margin: auto; margin-top: 5rem">
+    <form>
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="name">Наименование товара</label>
+                <input type="text" class="form-control" id="name" readonly th:value="${order.product.name}">
+            </div>
+            <div class="form-group col-md-3">
+                <label for="productionDate">Дата изготовления</label>
+                <input type="date" class="form-control" id="productionDate" name="productionDate">
+            </div>
+            <div class="form-group col-md-3">
+                <label for="expirationDate">Годен до</label>
+                <input type="date" class="form-control" id="expirationDate" name="expirationDate">
+            </div>
+        </div>
+        <div class="alert alert-success" role="alert" id="suc" style="display:none">
+            Продукт успешно добавлен.
+        </div>
+        <div class="alert alert-danger" role="alert" id="err" style="display:none">
+            A simple danger alert—check it out!
+        </div>
+        <button th:onclick="'createBatch(' + ${order.id} + ')'" type="button" class="btn btn-primary">Создать</button>
+    </form>
+</div>
+</body>
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-1.4.2.min.js"></script>
+</html>
+
+
+<script>
+async function createBatch(id) {
+
+
+    var param = {}
+
+    $('form').serializeArray().forEach((i) => {
+        param[i.name] = i.value
+    })
+
+    if (!param["productionDate"]) {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+         $("#err").html("Нужно указать дату изготовления")
+         return;
+    }
+
+    if (!param["expirationDate"]) {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+         $("#err").html("Нужно указать срок годности")
+         return;
+    }
+
+
+    console.log($.param(param))
+    var response = await fetch("/order/" + id + "/batch/create?"+$.param(param),{
+        method: 'POST',
+
+    })
+    if (response.ok) {
+        window.location.replace("/batch");
+    } else {
+        $("#err").css("display", "block")
+        $("#suc").css("display", "none")
+        console.log(response)
+        $("#err").html()
+    }
+
+}
+
+
+</script>

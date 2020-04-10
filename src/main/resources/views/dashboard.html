@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="RU" xmlns:th="http://www.thymeleaf.org">
+<head>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Shop Control</title>
+
+</head>
+<body>
+
+<div th:insert="\template\header :: navbar"></div>
+<div style="width: 80rem; margin: auto; margin-top: 5rem">
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">
+                <a th:href="${sortField == 'name'} ? '/dashboard?sortField=name&isDesc='+ ${!isDesc} : '/dashboard?sortField=name&isDesc=true'">
+                    Наименование товара <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20" height="20"  th:style="${sortField == 'name' ? 'opacity:1' : 'opacity:0'}">
+                </a>
+            </th>
+            <th scope="col">
+                <a th:href="${sortField == 'recommendedDate'} ? '/dashboard?sortField=recommendedDate&isDesc='+ ${!isDesc} : '/dashboard?sortField=recommendedDate&isDesc=true'">
+                Рекомендовано к закупке <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20" height="20" th:style="${sortField == 'recommendedDate' ? 'opacity:1' : 'opacity:0'}" style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+                <a th:href="${sortField == 'minimalRecommendedAmount'} ? '/dashboard?sortField=minimalRecommendedAmount&isDesc='+ ${!isDesc} : '/dashboard?sortField=minimalRecommendedAmount&isDesc=true'">
+                Рекомендованое количество <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20" height="20"  th:style="${sortField == 'minimalRecommendedAmount' ? 'opacity:1' : 'opacity:0'}" style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+                <a th:href="${sortField == 'count'} ? '/dashboard?sortField=count&isDesc='+ ${!isDesc} : '/dashboard?sortField=count&isDesc=true'">
+                Количество <img th:src="${isDesc} ? '/static/img/desc.png' : '/static/img/enc.png'" width="20" height="20"  th:style="${sortField == 'count' ? 'opacity:1' : 'opacity:0'}" style="margin-right: -100%">
+                </a>
+            </th>
+            <th scope="col">
+
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <th:block th:each="product : ${products}">
+
+            <tr th:class="${product.status == T(shop.entity.Product.Status).OK ? 'table-success' : (product.status == T(shop.entity.Product.Status).RECOMMENDED ? 'table-danger' : 'table-secondary')}">
+                <td><a th:href="'/product/' + ${product.id}" th:text="${product.name}"></a></td>
+                <td th:text="${product.recommendedDate}"></td>
+                <td th:text="${product.minimalRecommendedAmount} + ' ' + ${product.metric.name}"></td>
+                <td th:text="${product.count} + ' ' + ${product.metric.name}"></td>
+                <td> <form th:action="'/product/' + ${product.id} + '/order/create'" method="get">
+                    <input class="btn btn-primary" type="submit" value="Заказать"/>
+                </form>
+
+
+            </tr>
+
+        </th:block>
+
+        </tbody>
+    </table>
+</div>
+</body>
+
+</html>
